@@ -162,7 +162,6 @@ local create_document_integration = function(config)
     local win = vim.api.nvim_open_win(buf, false, win_config)
     popup_window = win
 
-    image.ignore_global_max_size = true
     image.window = win
     image.buffer = buf
 
