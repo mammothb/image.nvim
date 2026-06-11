@@ -45,6 +45,9 @@ local render = function(image)
   if type(state.options.scale_factor) == "number" then scale_factor = state.options.scale_factor end
   local natural_image_rows = math.floor(image.image_height / term_size.cell_height)
   local natural_image_columns = math.floor(image.image_width / term_size.cell_width)
+  -- scaled natural size: the image must never be rendered larger than this
+  local scaled_natural_width = math.max(1, math.floor(natural_image_columns * scale_factor))
+  local scaled_natural_height = math.max(1, math.floor(natural_image_rows * scale_factor))
 
   log.debug(("render() %s"):format(image.id), {
     id = image.id,
@@ -72,23 +75,19 @@ local render = function(image)
   if width == 0 and height ~= 0 then width = math.ceil(geometry_height_px * aspect_ratio / term_size.cell_width) end
   if height == 0 and width ~= 0 then height = math.ceil(geometry_width_px / aspect_ratio / term_size.cell_height) end
 
-  -- if both w/h are missing, use the natural image dimensions (unscaled)
+  -- if both w/h are missing, use the scaled natural image dimensions
   if width == 0 and height == 0 then
-    width = natural_image_columns
-    height = natural_image_rows
+    width = scaled_natural_width
+    height = scaled_natural_height
   end
 
   -- rendered size cannot be larger than the image itself
-  -- width = math.min(width, natural_image_columns)
-  -- height = math.min(height, natural_image_rows)
+  width = math.min(width, scaled_natural_width)
+  height = math.min(height, scaled_natural_height)
 
   -- screen max width/height
   width = math.min(width, term_size.screen_cols)
   -- height = math.min(height, term_size.screen_rows)
-
-  -- apply scale_factor to resolved geometry
-  width = math.max(1, math.floor(width * scale_factor))
-  height = math.max(1, math.floor(height * scale_factor))
 
   log.debug(("(1) x: %d, y: %d, width: %d, height: %d"):format(original_x, original_y, width, height))
 
