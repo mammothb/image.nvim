@@ -128,6 +128,11 @@ local send_sixel = function(sixel_data, x, y)
   if not has_dcs_start then wrapped_data = "\27P0;1;0q" .. wrapped_data end
   if not has_st_end then wrapped_data = wrapped_data .. "\27\\" end
 
+  -- tmux passthrough: wrap DCS sequence so tmux forwards it to the terminal
+  if utils.tmux.is_tmux then
+    wrapped_data = utils.tmux.escape(wrapped_data)
+  end
+
   -- build sequence
   local sequence = ""
 
